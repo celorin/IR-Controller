@@ -1,21 +1,128 @@
 #include <Arduino.h>
 #include <EEPROM.h>
-#include <WiFi.h>          //https://github.com/esp8266/Arduino
-#include <DNSServer.h>
+#include <FS.h>
+#include "SPIFFS.h"
+#include <WiFi.h>
+#include <WiFiClient.h> 
 #include <WebServer.h>
-#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
+//#include <WiFi.h>          //https://github.com/esp8266/Arduino
+//#include <DNSServer.h>
+//#include <WebServer.h>
+//#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 #include <IRremote.h>
 
-const int IR_SND = ;
-const int IR_RCV = ;
-const int BUTTON = ;
-const int BUZZER = ;
-const int LEDPin = ;
+const int IR_SND = 2;
+const int IR_RCV = 4;
+const int BUTTON = 25;
+const int BUZZER = 26;
+const int LEDPin = 27;
+
+String User_ID ="";
 
 IRsend irsend;
 IRrecv irrecv(IR_RCV);
 decode_results results;
 
+// Wi-Fi設定保存ファイル
+const char* settings = "/wifi_settings.txt";
+
+// サーバモードでのパスワード
+const String pass = "TDU_SmartCon";
+
+WebServer server(80);
+
+void handleRootGet() {
+  String html = "";
+  html += "<h1>WiFi Settings</h1>";
+  html += "<form method='post'>";
+  html += "  Wi-FiのSSIDを入力してください。<br>";
+  html += "  <input type='text' name='ssid' placeholder='ssid'><br>";
+  html += "  Wi-Fiのパスワードを入力してください。<br>";
+  html += "  <input type='text' name='pass' placeholder='pass'><br>";
+  html += "  登録済みのユーザー名を入力してください。<br>";
+  html += "  <input type='text' name='user_id' placeholder='user_id'><br>";
+  html += "  <input type='submit'><br>";
+  html += "</form>";
+  server.send(200, "text/html", html);
+}
+
+void handleRootPost() {
+  String ssid = server.arg("ssid");
+  String pass = server.arg("pass");
+  String user_id = server.arg("user_id");
+  
+  File f = SPIFFS.open(settings, "w");
+  f.println(ssid);
+  f.println(pass);
+  f.println(user_id);
+  f.close();
+
+  String html = "";
+  html += "<h1>WiFi Settings</h1>";
+  html += "SSID" + ssid + "<br>";
+  html += "パスワード" + pass + "<br>";
+  html += "ユーザー名" + user_id + "<br>";
+  html += "で設定されました。<br>これで設定は終了です。画面を閉じてください。";
+  server.send(200, "text/html", html);
+}
+
+void setup_client() {
+  File f = SPIFFS.open(settings, "r");
+  String ssid = f.readStringUntil('\n');
+  String pass = f.readStringUntil('\n');
+  User_ID = f.readStringUntil('\n');
+  f.close();
+
+  ssid.trim();
+  pass.trim();
+  User_ID.trim();
+  
+  Serial.println("SSID: " + ssid);
+  Serial.println("PASS: " + pass);
+  Serial.println("USER_ID: " + User_ID);
+
+  WiFi.begin(ssid.c_str(), pass.c_str());
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+
+  Serial.println("WiFi connected");
+
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void setup_server() {
+  String ssid = "IRSmartCon";
+  String pass = "TDU_SmartCon";
+  Serial.println("SSID: " + ssid);
+  Serial.println("PASS: " + pass);
+
+  /* You can remove the password parameter if you want the AP to be open. */
+  WiFi.softAP(ssid.c_str(), pass.c_str());
+
+  server.on("/", HTTP_GET, handleRootGet);
+  server.on("/", HTTP_POST, handleRootPost);
+  server.begin();
+  Serial.println("HTTP server started.");
+}
+
+void connection(){
+  /*
+  //WiFiManager
+  WiFiManager wifiManager;
+  //reset saved settings
+  //wifiManager.resetSettings();
+  wifiManager.autoConnect("IR_SmartController");
+  Serial.println("connected...");
+  */
+  //WiFiManagerを使わない方法
+  delay(1000);
+  setup_server();
+}
 
 void setup() {
  Serial.begin(9600); // シリアルモニタとの接続レート9600kbps
@@ -26,23 +133,17 @@ void setup() {
  
  digitalWrite(IR_SND, LOW); // 初期状態をLOWにセット
  digitalWrite(BUZZER, LOW);
-
- connection();
-}
-
-void connection(){
-  //WiFiManager
-  WiFiManager wifiManager;
-  //reset saved settings
-  //wifiManager.resetSettings();
-  wifiManager.autoConnect("IR_SmartController");
-  Serial.println("connected...");
-
-  //WiFiManagerを使わない方法　https://qiita.com/exabugs/items/2f67ae363a1387c8967c
+ 
+ SPIFFS.begin();
+ 
+ if(digitalRead(BUTTON) == 0)
+    connection();
+ delay(1000);
+ setup_client();
 }
 
 int codeType = -1; // The type of code
-unsigned long Rawcode; // The code value if not raw
+unsigned long RawCode; // The code value if not raw
 unsigned int rawCodes[RAWBUF]; // The durations if raw
 int RawcodeLen; // The length of the code
 int toggle = 0; // The RC5/6 toggle state
@@ -52,12 +153,12 @@ void storeCode(decode_results *results) {
   int count = results->rawlen;
   if (codeType == UNKNOWN) {
     Serial.println("Received unknown code, saving as raw");
-    codeLen = results->rawlen - 1;
+    RawcodeLen = results->rawlen - 1;
     // To store raw codes:
     // Drop first value (gap)
     // Convert from ticks to microseconds
     // Tweak marks shorter, and spaces longer to cancel out IR receiver distortion
-    for (int i = 1; i <= codeLen; i++) {
+    for (int i = 1; i <= RawcodeLen; i++) {
       if (i % 2) {
         // Mark
         rawCodes[i - 1] = results->rawbuf[i]*USECPERTICK - MARK_EXCESS;
@@ -107,9 +208,9 @@ void storeCode(decode_results *results) {
   }
 }
 
-void sendCode(unsigned long codeValue) {
+void sendCode(unsigned long codeValue, int codeLen) {
   if (codeType == NEC) {
-      irsend.sendNEC(codeValue, codeLen);
+      irsend.sendNEC(codeValue, RawcodeLen);
       Serial.print("Sent NEC ");
       Serial.println(codeValue, HEX);
   } 
@@ -169,5 +270,5 @@ void IR_snd(/*int num*/){
 }
 
 void loop() {
-  
+  server.handleClient();
 }
