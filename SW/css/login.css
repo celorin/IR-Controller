@@ -1,0 +1,70 @@
+body{
+    background-color: WHITE;
+}
+.main-nav{
+    display: flex;
+    list-style: none; 
+    font-size: 11px;
+    width: 260px;
+    margin: 10px auto;
+    border-bottom: solid 1px rgb(117, 116, 116);
+    
+}
+.main-nav li:first-child{
+    margin-right: auto;
+}
+.logo{
+    position: relative;
+    left: -40px;
+}
+li {
+    margin: 1px;
+    padding: 10px;
+    border-radius: 5px;
+}
+.Registration{
+    border: solid 1px #000;
+    border-radius: 10px;
+    margin: auto;
+    max-width: 300px;
+    font-size: 14px;
+}
+.terms{
+    height:200px;
+    width: 200px;
+    margin: auto;
+    background: rgb(255, 255, 255);
+    overflow-y: auto;
+    border: solid 1px #000;
+    word-wrap: break-word;    
+}
+.btn1{
+    border-style : solid;
+    display: inline-block;
+    background: #39cbaa;
+    color: #555;
+    margin:0 auto;
+    font-weight:bold;
+    display: inline-block;
+      padding: 0.5em 1em;
+      text-decoration: none;
+      border-bottom: solid 2px #627295;
+      border-radius: 1.5px;
+      
+}
+.textlines {
+    resize: none;
+    border: 1px solid;
+    border-radius: 0.67em;
+    background-color: WHITE;
+    width: 100%;
+    line-height: 0.5;
+    height: 2.5em;
+    font-size: 14px;
+}
+.paddings{
+    padding: 15px;
+}
+.Regist-padding{
+    padding: 5%;
+}     
