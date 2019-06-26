@@ -199,6 +199,7 @@ void storeCode(decode_results *results) {
     RawCode = results->value;
     RawcodeLen = results->bits;
   }
+  IR_post(/*HerokuのDBに送るRawCode*/);
 }
 
 void sendCode(unsigned long codeValue, int codeLen) {
@@ -256,9 +257,9 @@ void IR_rev(){
   digitalWrite(LEDPin,LOW);
 }
 
-void IR_snd(/*int num*/){
+void IR_snd(/*受信したコード*/){
   digitalWrite(BUZZER,HIGH);
-  sendCode(/*send raw code[num]*/);
+  sendCode(/*send raw code[]*/);  //codeLenどうするか
   digitalWrite(BUZZER,LOW);
 }
 
