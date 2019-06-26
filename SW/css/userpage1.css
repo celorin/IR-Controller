@@ -76,7 +76,7 @@ main p {
   transition: transform .5s;
  }
  .menu-trigger.active {
-  transform: translateX(-465vw);
+  transform: translateX(-45vw);
 }
  .menu-trigger span {
   display: inline-block;
