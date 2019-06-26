@@ -11,6 +11,9 @@
 //#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 #include <IRremote.h>
 
+#define HOST_NAME ""//Herokuのサーバーaddr
+#define HOST_PORT 80
+
 const int IR_SND = 2;
 const int IR_RCV = 4;
 const int BUTTON = 25;
@@ -19,9 +22,14 @@ const int LEDPin = 27;
 
 String User_ID ="";
 
+IPAddress ip;
+
 IRsend irsend;
 IRrecv irrecv(IR_RCV);
 decode_results results;
+
+//学習したIRコードが保存されるファイル
+const char* ircode_file = "/ir_codes.txt";
 
 // Wi-Fi設定保存ファイル
 const char* settings = "/wifi_settings.txt";
@@ -120,27 +128,12 @@ void connection(){
   Serial.println("connected...");
   */
   //WiFiManagerを使わない方法
+  digitalWrite(BUZZER,HIGH);
   delay(1000);
+  digitalWrite(BUZZER,LOW);
   setup_server();
 }
 
-void setup() {
- Serial.begin(9600); // シリアルモニタとの接続レート9600kbps
- pinMode(IR_SND, OUTPUT); // 出力ピンの設定
- pinMode(BUZZER, OUTPUT);
- pinMode(IR_RCV, INPUT); // 入力ピンの設定
- pinMode(BUTTON, INPUT);
- 
- digitalWrite(IR_SND, LOW); // 初期状態をLOWにセット
- digitalWrite(BUZZER, LOW);
- 
- SPIFFS.begin();
- 
- if(digitalRead(BUTTON) == 0)
-    connection();
- delay(1000);
- setup_client();
-}
 
 int codeType = -1; // The type of code
 unsigned long RawCode; // The code value if not raw
@@ -267,6 +260,38 @@ void IR_snd(/*int num*/){
   digitalWrite(BUZZER,HIGH);
   sendCode(/*send raw code[num]*/);
   digitalWrite(BUZZER,LOW);
+}
+
+void IR_post(/*RawCode*/){
+  if(client.connect(HOST_NAME, HOST_PORT)){
+    Serial.println("connected to server");
+    client.print("GET ここにURLを指定する（ex. /celorin.php)?val="
+    client.print();//ここにRawCodeを入れる
+    client.print(" HTTP/1.1\r\n");
+    client.print("HOST: ");
+    client.println(ip);
+    client.println("Connection: close");
+    client.println();
+  }
+}
+
+void setup() {
+ Serial.begin(9600); // シリアルモニタとの接続レート9600kbps
+ pinMode(IR_SND, OUTPUT); // 出力ピンの設定
+ pinMode(BUZZER, OUTPUT);
+ pinMode(IR_RCV, INPUT); // 入力ピンの設定
+ pinMode(BUTTON, INPUT);
+ 
+ digitalWrite(IR_SND, LOW); // 初期状態をLOWにセット
+ digitalWrite(BUZZER, LOW);
+ 
+ SPIFFS.begin();
+ 
+ if(digitalRead(BUTTON) == 0)
+    connection();
+ delay(1000);
+ setup_client();
+ ip = WiFi.localIP();
 }
 
 void loop() {
