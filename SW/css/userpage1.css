@@ -200,3 +200,120 @@ a{
   z-index: 3;
 }
 /*ここまでテンプレ*/
+.btn {
+    color: #000;
+    border: 1px solid #777;
+    margin-bottom: .3em;
+    text-align: left;
+    display: table; 
+    width:60%;
+    margin-left: 20%;
+    padding:5px 5px 5px 10px;
+}
+.btn:hover {
+    cursor: pointer;    
+}
+.btn:active {
+    background: rgb(127, 194, 239);
+}
+.box {
+    text-align: center;
+    margin-left: 25%;
+    margin-right: 25%;
+}
+
+/* checkbox non-display */
+.add-control .chk{
+    display: none;
+}
+/* button control */
+.add-control #open-close ~ .btn-open-close::before {
+    content: "▽ " ;
+    border-right:solid 1px #777;
+    padding:5px;
+}
+.add-control #open-close ~ .box {
+    display: none ;
+}
+.add-control #open-close:checked ~ .btn-open-close::before {
+    content: "△ " ;
+}
+.add-control #open-close:checked ~ .box {
+    display: block ;
+    padding:5px;
+}
+
+/********************************************
+* Now Loading
+********************************************/
+#overlay{ 
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    width: 100%;
+    height:100%;
+    display: none;
+    background: rgba(0,0,0,0.6);
+}
+.cv-spinner {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.spinner {
+    width: 80px;
+    height: 80px;
+    border: 4px #ddd solid;
+    border-top: 4px #999 solid;
+    border-radius: 50%;
+    animation: sp-anime 0.8s infinite linear;
+}
+@keyframes sp-anime {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(359deg); }
+}
+.is-hide{
+    display:none;
+}
+
+.btn1 {
+  width:70%;
+  height:40px;
+  background:#fff;
+  border-style: solid;
+}
+.btn2 {
+  width:30%;
+  height:40px;
+  float:right;
+  background:#fff;
+  border-style: solid;
+}
+.btn3 {
+  font-size:10px;
+  color:#AAA;
+  float:left;
+  background:#fff;
+  border: 1px solid #AAA;
+  padding:5px;
+  margin-top:5px;
+  margin-left:5%;
+  border-radius: 50%;
+}
+.btn4 {
+  background:#fff;
+  border-style: solid;
+  background:#EEE;
+}
+.btn5 {
+  color: #000;
+  border: 1px solid #AAA;
+  margin-bottom: .3em;
+  text-align: left;
+  display: table; 
+  width:60%;
+  margin-left: 20%;
+  padding:5px 5px 5px 10px;
+}

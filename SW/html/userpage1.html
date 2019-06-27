@@ -32,6 +32,28 @@
           <li><a class ="logo" href="userpage1.html">IRスマートリモコン</a></li>
         </ul>
       </nav>
-      
+    
+    <!-- loding -->
+    <div id="overlay">
+        <div class="cv-spinner">
+            <span class="spinner"></span>
+        </div>
+    </div>
+    
+    <!--@foreach($button_object['kubun_id'] as $label)-->
+    	<br>
+    	<div class="add-control">
+  		<input class="btn3" type="button" value=" × ">
+  		<input type="checkbox" class="chk" id="open-close" name="btn" /><label class="btn btn-open-close" for="open-close">
+  		&nbsp;&nbsp;<!--{{$label->name}}-->テレビ
+  		</label>
+  		<!--@foreach(書いてね！！！！！！！！)-->
+  			<div class="box"><div class="name"><input class="btn1" type="button" value="電源"><!-- ←の"電源"を変数に変えてね--><input class="btn2" type="button" value="編集"></div></div>
+  		<!--@endforeach-->
+  		<div class="box"><div class="name"><input class="btn4" type="button" value="＋  ボタンを作成"></div></div>
+		</div>
+	<!--@endforeach-->
+	<br>
+	<input class="btn3" type="button" value=" + "><label class="btn5">新しい区分を作成</label>
     </body>
 </html>
