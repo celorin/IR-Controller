@@ -4,151 +4,36 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no">
             <title>ユーザーページ</title>
-            <link rel="stylesheet" type="text/css" href="../css/userpage1.css">
-            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>    
-            <script type="text/javascript" src="../javascript/support.js"></script>
-            <style>
-            .myModal_popUp,
-            input[name="myModal_switch"],
-            #myModal_open + label ~ label {
-              display: none;
-            }
-            #myModal_open + label,
-            #myModal_close-button + label {
-              cursor: pointer;
-            }
+            <link rel="stylesheet" type="text/css" href="../css/test.css">
+      </head>
+      <body>
+        <input type="checkbox" class="check" id="checked">
+        <label class="menu-btn" for="checked">
+            <span class="bar top"></span>
+            <span class="bar middle"></span>
+            <span class="bar bottom"></span>
+            <span class="menu-btn__text">MENU</span>
+        </label>
 
-            .myModal_popUp {
-              animation: fadeIn 1s ease 0s 1 normal;
-              -webkit-animation: fadeIn 1s ease 0s 1 normal;
-            }
-            #myModal_open:checked ~ #myModal_close-button + label{
-              animation: fadeIn 2s ease 0s 1 normal;
-              -webkit-animation: fadeIn 2s ease 0s 1 normal;
-            }
-            @keyframes fadeIn {
-              0% {opacity: 0;}
-              100% {opacity: 1;}
-            }
-            @-webkit-keyframes fadeIn {
-              0% {opacity: 0;}
-              100% {opacity: 1;}
-            }
+        <label class="close-menu" for="checked"></label>
 
-            #myModal_open:checked + label ~ .myModal_popUp {
-              background: #fff;
-              display: block;
-              width: 90%;
-              height: 80%;
-              position: fixed;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%,-50%);
-              -webkit-transform: translate(-50%,-50%);
-              -ms-transform: translate(-50%,-50%);
-              z-index: 998;
-            }
-
-            #myModal_open:checked + label ~ .myModal_popUp > .myModal_popUp-content {
-              width: calc(100% - 40px);
-              height: calc(100% - 20px - 44px );
-              padding: 10px 20px;
-              overflow-y: auto;
-              -webkit-overflow-scrolling:touch;
-            }
-
-            #myModal_open:checked + label + #myModal_close-overlay + label {
-              background: rgba(0, 0, 0, 0.70);
-              display: block;
-              width: 100%;
-              height: 100%;
-              position: fixed;
-              top: 0;
-              left: 0;
-              overflow: hidden;
-              white-space: nowrap;
-              text-indent: 100%;
-              z-index: 997;
-            }
-
-            #myModal_open:checked ~ #myModal_close-button + label {
-              display: block;
-              background: #fff;
-              text-align: center;
-              font-size: 25px;
-              line-height: 44px;
-              width: 90%;
-              height: 44px;
-              position: fixed;
-              bottom: 10%;
-              left: 5%;
-              z-index: 999;
-            }
-            #myModal_open:checked ~ #myModal_close-button + label::before {
-              content: '×';
-            }
-            #myModal_open:checked ~ #myModal_close-button + label::after {
-              content: 'CLOSE';
-              margin-left: 5px;
-              font-size: 80%;
-            }
-
-            @media (min-width: 768px) {
-              #myModal_open:checked + label ~ .myModal_popUp {
-                width: 600px;
-                height: 600px;
-              }
-              #myModal_open:checked + label ~ .myModal_popUp > .myModal_popUp-content {
-                height: calc(100% - 20px);
-              }
-              #myModal_open:checked ~ #myModal_close-button + label {
-                width: 44px;
-                height: 44px;
-                left: 50%;
-                top: 50%;
-                margin-left: 240px;
-                margin-top: -285px;
-                overflow: hidden;
-              }
-              #myModal_open:checked ~ #myModal_close-button + label::after {
-                display: none;
-              }
-            }
-            </style>
-
-        </head>
-    <body>
-        <div class="wrapper">
-          
-          <div class="menu-trigger" href="">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <nav>
+        <nav class="drawer-menu">
+            <ul class ="menutag">
+                <li><a href="#">Side Menu Name</a></li>
+                <li><a href="#">Side Menu Name</a></li>
+                <li><a href="#">Side Menu Name</a></li>
+                <li><a href="#">Side Menu Name</a></li>
+                <li><a href="#">Side Menu Name</a></li>
             <ul>
-                <li><a href ="#">サポート</a></li>
-                <li><label for="myModal_open">ログアウト</label></li>
-                <li><a href ="#">退会</a></li>
-            </ul>
           </nav>
-          <div class="overlay"></div>
-        </div>
-        <ul class="main-nav">
+        
+        <nav>
+          <ul class="main-nav">
             <li><a class ="logo">IRスマートリモコン</a></li>
-        </ul> 
+          </ul>
+        </nav>
 
-        <section class="myModal">
-          <input id="myModal_open" type="radio" name="myModal_switch" />
-          <input id="myModal_close-overlay" type="radio" name="myModal_switch" />
-          <label for="myModal_close-overlay">オーバーレイで閉じる</label>
-          <input id="myModal_close-button" type="radio" name="myModal_switch" />
-          <label for="myModal_close-button"></label>
-          <div class="myModal_popUp">
-          <div class="myModal_popUp-content">
-            <p>vjgcvgcgchkccghkkc</p>
-          </div>
-         </div>
-        </section>
+        <p>vjgcvgcgchkccghkkc</p>
+
     </body>
 </html>

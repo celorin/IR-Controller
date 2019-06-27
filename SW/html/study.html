@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no">
+            <title>学習ページ</title>
+            <link rel="stylesheet" type="text/css" href="../css/study.css">
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>    
+            <script type="text/javascript" src="../javascript/study.js"></script>
+
+
+        </head>
+    <body>
+        <div class="wrapper">
+          
+          <div class="menu-trigger" href="">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <nav>
+            <ul>
+                <li><a href ="#">サポート</a></li>
+                <li><a href ="#">ログアウト</a></li>
+                <li><a href ="#">退会</a></li>
+            </ul>
+          </nav>
+          <div class="overlay"></div>
+        </div>
+        <ul class="main-nav">
+            <li><a class ="logo" href="#">IRスマートリモコン</a></li>
+        </ul> 
+        
+            <form class ="stydyform">
+                <div class="inp">
+                    <br><br><p>ボタン名を入力してください</p>
+                    <input type="text" class="buttonname" placeholder="ボタン名" required　minlength="4" maxlength="8" size="30vw" rows="1"><br><br>
+                    <p class="message">
+                        学習開始ボタンを押し、ビープ音が鳴ったら、機器に向けて記憶させたいボタンを押してください。
+                        ボタン作成後、一度動作確認をして、動かなかったらボタンを削除し、もう一度学習してください。
+                    </p>
+                    <br><br>
+                    <input type="submit" value="学習開始" class="buttonname">
+                </div>
+            </form>
+       
+        
+    </body>
+</html>
