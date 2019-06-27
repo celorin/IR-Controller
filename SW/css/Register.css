@@ -5,13 +5,17 @@ body{
     display: flex;
     list-style: none; 
     font-size: 11px;
-    width: 260px;
+    width: 100%;
     margin: 10px auto;
     border-bottom: solid 1px rgb(117, 116, 116);
     
 }
 .main-nav li:first-child{
     margin-right: auto;
+}
+.main-nav li a{
+    text-decoration: none;
+    color:black;
 }
 .logo{
     position: relative;
