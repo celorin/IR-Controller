@@ -1,3 +1,7 @@
+//Store_CodeからRawCodeだけを取り出してHerokuのDBにPost。
+//GetしたRawCodeをSend_Codeに渡して発光させる処理を作る。CodeTypeをSonyとか使わないでUnknownを使えば行けるかな
+
+
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <FS.h>
@@ -5,6 +9,7 @@
 #include <WiFi.h>
 #include <WiFiClient.h> 
 #include <WebServer.h>
+#include <ESP.h>
 //#include <WiFi.h>          //https://github.com/esp8266/Arduino
 //#include <DNSServer.h>
 //#include <WebServer.h>
@@ -14,7 +19,9 @@
 #define HOST_NAME ""//Herokuのサーバーaddr
 #define HOST_PORT 80
 
-const int IR_SND = 2;
+void IR_post(/*引数忘れないでね*/);
+
+const unsigned int IR_SND = 2;
 const int IR_RCV = 4;
 const int BUTTON = 25;
 const int BUZZER = 26;
@@ -22,9 +29,11 @@ const int LEDPin = 27;
 
 String User_ID ="";
 
+boolean serverMode=false;
+
 IPAddress ip;
 
-IRsend irsend;
+IRsend irsend(IR_SND);
 IRrecv irrecv(IR_RCV);
 decode_results results;
 
@@ -38,6 +47,7 @@ const char* settings = "/wifi_settings.txt";
 const String pass = "TDU_SmartCon";
 
 WebServer server(80);
+WiFiClient client;
 
 void handleRootGet() {
   String html = "";
@@ -70,8 +80,10 @@ void handleRootPost() {
   html += "SSID" + ssid + "<br>";
   html += "パスワード" + pass + "<br>";
   html += "ユーザー名" + user_id + "<br>";
-  html += "で設定されました。<br>これで設定は終了です。画面を閉じてください。";
+  html += "で設定されました。<br>これで設定は終了です。本体が再起動します。画面を閉じてください。";
   server.send(200, "text/html", html);
+  delay(1000);
+  ESP.restart();
 }
 
 void setup_client() {
@@ -202,7 +214,7 @@ void storeCode(decode_results *results) {
   IR_post(/*HerokuのDBに送るRawCode*/);
 }
 
-void sendCode(unsigned long codeValue, int codeLen) {
+void sendCode(unsigned long codeValue, int codeLen) {//これみて→https://qiita.com/cexen/items/5f9e7b28fe1ba4be1f50
   if (codeType == NEC) {
       irsend.sendNEC(codeValue, RawcodeLen);
       Serial.print("Sent NEC ");
@@ -259,15 +271,17 @@ void IR_rev(){
 
 void IR_snd(/*受信したコード*/){
   digitalWrite(BUZZER,HIGH);
-  sendCode(/*send raw code[]*/);  //codeLenどうするか
+  unsigned long aiueo=0;
+  int kakikukeko=0;
+  sendCode(aiueo,kakikukeko/*send raw code[]*/);  //適当な引数入れてある　要変更　codeLenどうするか
   digitalWrite(BUZZER,LOW);
 }
 
 void IR_post(/*RawCode*/){
   if(client.connect(HOST_NAME, HOST_PORT)){
     Serial.println("connected to server");
-    client.print("GET ここにURLを指定する（ex. /celorin.php)?val="
-    client.print();//ここにRawCodeを入れる
+    client.print("GET ここにURLを指定する（ex. /celorin.php)?val=");
+    client.print("");//ここにRawCodeを入れる
     client.print(" HTTP/1.1\r\n");
     client.print("HOST: ");
     client.println(ip);
@@ -288,13 +302,24 @@ void setup() {
  
  SPIFFS.begin();
  
- if(digitalRead(BUTTON) == 0)
+ if(digitalRead(BUTTON) == 0){
+    serverMode=true;
     connection();
- delay(1000);
- setup_client();
- ip = WiFi.localIP();
+ }
+ else{ 
+    serverMode=false;
+    delay(1000);
+    setup_client();
+    ip = WiFi.localIP();
+ }
 }
 
 void loop() {
-  server.handleClient();
+  delay(500);
+  if(serverMode){
+    server.handleClient();
+  }
+  else{
+    //User_ID +".txt"を読みに行く処理
+  }
 }
