@@ -7,7 +7,7 @@
 #include <FS.h>
 #include "SPIFFS.h"
 #include <WiFi.h>
-#include <WiFiClient.h> 
+#include <WiFiClient.h>
 #include <WebServer.h>
 #include <ESP.h>
 //#include <WiFi.h>          //https://github.com/esp8266/Arduino
@@ -21,19 +21,19 @@
 
 void IR_post(/*引数忘れないでね*/);
 
-const unsigned int IR_SND = 2;
+const int IR_SND = 2;
 const int IR_RCV = 4;
 const int BUTTON = 25;
 const int BUZZER = 26;
 const int LEDPin = 27;
 
-String User_ID ="";
+String User_ID = "";
 
-boolean serverMode=false;
+boolean serverMode = false;
 
 IPAddress ip;
 
-IRsend irsend(IR_SND);
+IRsend irsend;
 IRrecv irrecv(IR_RCV);
 decode_results results;
 
@@ -68,7 +68,7 @@ void handleRootPost() {
   String ssid = server.arg("ssid");
   String pass = server.arg("pass");
   String user_id = server.arg("user_id");
-  
+
   File f = SPIFFS.open(settings, "w");
   f.println(ssid);
   f.println(pass);
@@ -96,7 +96,7 @@ void setup_client() {
   ssid.trim();
   pass.trim();
   User_ID.trim();
-  
+  delay(1000);
   Serial.println("SSID: " + ssid);
   Serial.println("PASS: " + pass);
   Serial.println("USER_ID: " + User_ID);
@@ -130,19 +130,19 @@ void setup_server() {
   Serial.println("HTTP server started.");
 }
 
-void connection(){
+void connection() {
   /*
-  //WiFiManager
-  WiFiManager wifiManager;
-  //reset saved settings
-  //wifiManager.resetSettings();
-  wifiManager.autoConnect("IR_SmartController");
-  Serial.println("connected...");
+    //WiFiManager
+    WiFiManager wifiManager;
+    //reset saved settings
+    //wifiManager.resetSettings();
+    wifiManager.autoConnect("IR_SmartController");
+    Serial.println("connected...");
   */
   //WiFiManagerを使わない方法
-  digitalWrite(BUZZER,HIGH);
+  digitalWrite(BUZZER, HIGH);
   delay(1000);
-  digitalWrite(BUZZER,LOW);
+  digitalWrite(BUZZER, LOW);
   setup_server();
 }
 
@@ -166,12 +166,12 @@ void storeCode(decode_results *results) {
     for (int i = 1; i <= RawcodeLen; i++) {
       if (i % 2) {
         // Mark
-        rawCodes[i - 1] = results->rawbuf[i]*USECPERTICK - MARK_EXCESS;
+        rawCodes[i - 1] = results->rawbuf[i] * USECPERTICK - MARK_EXCESS;
         Serial.print(" m");
-      } 
+      }
       else {
         // Space
-        rawCodes[i - 1] = results->rawbuf[i]*USECPERTICK + MARK_EXCESS;
+        rawCodes[i - 1] = results->rawbuf[i] * USECPERTICK + MARK_EXCESS;
         Serial.print(" s");
       }
       Serial.print(rawCodes[i - 1], DEC);
@@ -186,10 +186,10 @@ void storeCode(decode_results *results) {
         Serial.println("repeat; ignoring.");
         return;
       }
-    } 
+    }
     else if (codeType == SONY) {
       Serial.print("Received SONY: ");
-    } 
+    }
     else if (codeType == PANASONIC) {
       Serial.print("Received PANASONIC: ");
     }
@@ -198,10 +198,10 @@ void storeCode(decode_results *results) {
     }
     else if (codeType == RC5) {
       Serial.print("Received RC5: ");
-    } 
+    }
     else if (codeType == RC6) {
       Serial.print("Received RC6: ");
-    } 
+    }
     else {
       Serial.print("Unexpected codeType ");
       Serial.print(codeType, DEC);
@@ -216,15 +216,15 @@ void storeCode(decode_results *results) {
 
 void sendCode(unsigned long codeValue, int codeLen) {//これみて→https://qiita.com/cexen/items/5f9e7b28fe1ba4be1f50
   if (codeType == NEC) {
-      irsend.sendNEC(codeValue, RawcodeLen);
-      Serial.print("Sent NEC ");
-      Serial.println(codeValue, HEX);
-  } 
+    irsend.sendNEC(codeValue, RawcodeLen);
+    Serial.print("Sent NEC ");
+    Serial.println(codeValue, HEX);
+  }
   else if (codeType == SONY) {
     irsend.sendSony(codeValue, codeLen);
     Serial.print("Sent Sony ");
     Serial.println(codeValue, HEX);
-  } 
+  }
   else if (codeType == PANASONIC) {
     irsend.sendPanasonic(codeValue, codeLen);
     Serial.print("Sent Panasonic");
@@ -242,13 +242,13 @@ void sendCode(unsigned long codeValue, int codeLen) {//これみて→https://qi
       Serial.print("Sent RC5 ");
       Serial.println(codeValue, HEX);
       irsend.sendRC5(codeValue, codeLen);
-    } 
+    }
     else {
       irsend.sendRC6(codeValue, codeLen);
       Serial.print("Sent RC6 ");
       Serial.println(codeValue, HEX);
     }
-  } 
+  }
   else if (codeType == UNKNOWN /* i.e. raw */) {
     // Assume 38 KHz
     irsend.sendRaw(rawCodes, codeLen, 38);
@@ -256,29 +256,29 @@ void sendCode(unsigned long codeValue, int codeLen) {//これみて→https://qi
   }
 }
 
-void IR_rev(){
-  digitalWrite(BUZZER,HIGH);
-  digitalWrite(LEDPin,HIGH);
+void IR_rev() {
+  digitalWrite(BUZZER, HIGH);
+  digitalWrite(LEDPin, HIGH);
   irrecv.enableIRIn();
   if (irrecv.decode(&results)) {
     Serial.println(results.value, HEX);
     storeCode(&results);
     irrecv.resume();
   }
-  digitalWrite(BUZZER,LOW);
-  digitalWrite(LEDPin,LOW);
+  digitalWrite(BUZZER, LOW);
+  digitalWrite(LEDPin, LOW);
 }
 
-void IR_snd(/*受信したコード*/){
-  digitalWrite(BUZZER,HIGH);
-  unsigned long aiueo=0;
-  int kakikukeko=0;
-  sendCode(aiueo,kakikukeko/*send raw code[]*/);  //適当な引数入れてある　要変更　codeLenどうするか
-  digitalWrite(BUZZER,LOW);
+void IR_snd(/*受信したコード*/) {
+  digitalWrite(BUZZER, HIGH);
+  unsigned long aiueo = 0;
+  int kakikukeko = 0;
+  sendCode(aiueo, kakikukeko/*send raw code[]*/); //適当な引数入れてある　要変更　codeLenどうするか
+  digitalWrite(BUZZER, LOW);
 }
 
-void IR_post(/*RawCode*/){
-  if(client.connect(HOST_NAME, HOST_PORT)){
+void IR_post(/*RawCode*/) {
+  if (client.connect(HOST_NAME, HOST_PORT)) {
     Serial.println("connected to server");
     client.print("GET ここにURLを指定する（ex. /celorin.php)?val=");
     client.print("");//ここにRawCodeを入れる
@@ -291,35 +291,35 @@ void IR_post(/*RawCode*/){
 }
 
 void setup() {
- Serial.begin(9600); // シリアルモニタとの接続レート9600kbps
- pinMode(IR_SND, OUTPUT); // 出力ピンの設定
- pinMode(BUZZER, OUTPUT);
- pinMode(IR_RCV, INPUT); // 入力ピンの設定
- pinMode(BUTTON, INPUT);
- 
- digitalWrite(IR_SND, LOW); // 初期状態をLOWにセット
- digitalWrite(BUZZER, LOW);
- 
- SPIFFS.begin();
- 
- if(digitalRead(BUTTON) == 0){
-    serverMode=true;
+  Serial.begin(9600); // シリアルモニタとの接続レート9600kbps
+  pinMode(IR_SND, OUTPUT); // 出力ピンの設定
+  pinMode(BUZZER, OUTPUT);
+  pinMode(IR_RCV, INPUT); // 入力ピンの設定
+  pinMode(BUTTON, INPUT);
+
+  digitalWrite(IR_SND, LOW); // 初期状態をLOWにセット
+  digitalWrite(BUZZER, LOW);
+
+  SPIFFS.begin();
+
+  if (digitalRead(BUTTON) == 0) {
+    serverMode = true;
     connection();
- }
- else{ 
-    serverMode=false;
+  }
+  else {
+    serverMode = false;
     delay(1000);
     setup_client();
     ip = WiFi.localIP();
- }
+  }
 }
 
 void loop() {
   delay(500);
-  if(serverMode){
+  if (serverMode) {
     server.handleClient();
   }
-  else{
+  else {
     //User_ID +".txt"を読みに行く処理
   }
 }
