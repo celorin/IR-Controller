@@ -19,3 +19,6 @@ $(function(){
       }
     });
 });
+function on(){
+  location.href="userpage1.html";
+}

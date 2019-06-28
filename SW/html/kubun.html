@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no">
-            <title>学習ページ</title>
+            <title>区分作成ページ</title>
             <link rel="stylesheet" type="text/css" href="../css/study.css">
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>    
             <script type="text/javascript" src="../javascript/study.js"></script>
@@ -35,16 +35,11 @@
         </nav>
             <form class ="stydyform">
                 <div class="inp">
-                    <br><br><p>ボタン名を入力してください</p>
-                    <input type="text" class="button_name" placeholder="ボタン名" required minlength="4" maxlength="8" size="30vw" rows="1"><br>
+                    <br><br><p>区分名を入力してください</p>
+                    <input type="text" class="button_name" placeholder="区分名" required minlength="4" maxlength="8" size="30vw" rows="1"><br>
                     <br>
-                    <p class="message">
-                        学習開始ボタンを押し、ビープ音が鳴ったら、機器に向けて記憶させたいボタンを押してください。<br>
-                        ボタン作成後、一度動作確認をして、動かなかったらボタンを削除し、もう一度学習してください。<br>
-                        注)エアコンは温度、風量等データを一括で送信しているため、温度上下のみ等の利用はできません。
-                    </p>
-                    <br><br>
-                    <input type="submit" value="学習開始" class="butto_nname">
+                    
+                    <input type="submit" value="決定" class="kubun_name" onclick="location.href='./userpage1.html'">
                     <!--ユーザページに遷移-->
                 </div>
             </form>
