@@ -206,11 +206,17 @@ a{
     font-size: 80%;
 
 }
-.buttonname{
+.button_name{
+    border: solid 1px #000; 
+}
+.kubun_name{
     border: solid 1px #000; 
 }
 .message{
-    height:100px;
+    text-align:left;
     width: 200px;
+    padding:10px;
     margin: auto;
+    border: 1px solid #AAA;
+    border-radius: 10%;
 }
