@@ -23,6 +23,7 @@ void IR_post(/*引数忘れないでね*/);
 
 const int IR_SND = 2;
 const int IR_RCV = 4;
+const int IR_RCV_POW = 16;
 const int BUTTON = 25;
 const int BUZZER = 26;
 const int LEDPin = 27;
@@ -104,8 +105,11 @@ void setup_client() {
   WiFi.begin(ssid.c_str(), pass.c_str());
 
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    digitalWrite(LEDPin,HIGH);
     Serial.print(".");
+    delay(250);
+    digitalWrite(LEDPin,LOW);
+    delay(250);
   }
   Serial.println("");
 
@@ -214,31 +218,31 @@ void storeCode(decode_results *results) {
   IR_post(/*HerokuのDBに送るRawCode*/);
 }
 
-void sendCode(unsigned long codeValue, int codeLen) {//これみて→https://qiita.com/cexen/items/5f9e7b28fe1ba4be1f50
-  if (codeType == NEC) {
-    irsend.sendNEC(codeValue, RawcodeLen);
+void sendCode(unsigned long codeValue,unsigned int codeLen) {//これみて→https://qiita.com/cexen/items/5f9e7b28fe1ba4be1f50
+  if (results.decode_type == NEC) {
+    irsend.sendNEC(codeValue, codeLen);
     Serial.print("Sent NEC ");
     Serial.println(codeValue, HEX);
   }
-  else if (codeType == SONY) {
+  else if (results.decode_type == SONY) {
     irsend.sendSony(codeValue, codeLen);
     Serial.print("Sent Sony ");
     Serial.println(codeValue, HEX);
   }
-  else if (codeType == PANASONIC) {
+  else if (results.decode_type == PANASONIC) {
     irsend.sendPanasonic(codeValue, codeLen);
     Serial.print("Sent Panasonic");
     Serial.println(codeValue, HEX);
   }
-  else if (codeType == JVC) {
+  else if (results.decode_type == JVC) {
     irsend.sendJVC(codeValue, codeLen, false);
     Serial.print("Sent JVC");
     Serial.println(codeValue, HEX);
   }
-  else if (codeType == RC5 || codeType == RC6) {
+  else if (results.decode_type == RC5 || results.decode_type == RC6) {
     codeValue = codeValue & ~(1 << (codeLen - 1));
     codeValue = codeValue | (toggle << (codeLen - 1));
-    if (codeType == RC5) {
+    if (results.decode_type == RC5) {
       Serial.print("Sent RC5 ");
       Serial.println(codeValue, HEX);
       irsend.sendRC5(codeValue, codeLen);
@@ -252,28 +256,38 @@ void sendCode(unsigned long codeValue, int codeLen) {//これみて→https://qi
   else if (codeType == UNKNOWN /* i.e. raw */) {
     // Assume 38 KHz
     irsend.sendRaw(rawCodes, codeLen, 38);
-    Serial.println("Sent raw");
+    Serial.print("Sent raw ");
+    for(int i=0;i<=codeLen;i++)
+      Serial.print(rawCodes[i]);
+    Serial.println();
   }
+  /*irsend.sendRaw(results.rawbuf, codeLen, 38);
+  Serial.println("Sent raw");
+  */
+  
 }
 
 void IR_rev() {
   digitalWrite(BUZZER, HIGH);
   digitalWrite(LEDPin, HIGH);
-  irrecv.enableIRIn();
+  digitalWrite(IR_RCV_POW, HIGH);
   if (irrecv.decode(&results)) {
     Serial.println(results.value, HEX);
     storeCode(&results);
     irrecv.resume();
+    Serial.println("rev success!");
+    delay(500);
   }
   digitalWrite(BUZZER, LOW);
   digitalWrite(LEDPin, LOW);
+  digitalWrite(IR_RCV_POW, LOW);
 }
 
-void IR_snd(/*受信したコード*/) {
+void IR_snd() {
   digitalWrite(BUZZER, HIGH);
-  unsigned long aiueo = 0;
-  int kakikukeko = 0;
-  sendCode(aiueo, kakikukeko/*send raw code[]*/); //適当な引数入れてある　要変更　codeLenどうするか
+  sendCode(results.value,results.bits/*send raw code[]*/); //適当な引数入れてある　要変更　codeLenどうするか
+  irrecv.enableIRIn();
+  delay(500);
   digitalWrite(BUZZER, LOW);
 }
 
@@ -292,15 +306,20 @@ void IR_post(/*RawCode*/) {
 
 void setup() {
   Serial.begin(9600); // シリアルモニタとの接続レート9600kbps
-  pinMode(IR_SND, OUTPUT); // 出力ピンの設定
-  pinMode(BUZZER, OUTPUT);
-  pinMode(IR_RCV, INPUT); // 入力ピンの設定
-  pinMode(BUTTON, INPUT);
+  pinMode(BUZZER, OUTPUT);// 出力ピンの設定
+  pinMode(LEDPin, OUTPUT);
+  pinMode(IR_RCV_POW, OUTPUT);
+  pinMode(BUTTON, INPUT);// 入力ピンの設定
 
-  digitalWrite(IR_SND, LOW); // 初期状態をLOWにセット
-  digitalWrite(BUZZER, LOW);
+  digitalWrite(BUZZER, LOW);// 初期状態をLOWにセット
 
+  
   SPIFFS.begin();
+/*
+  File f = SPIFFS.open(settings, "r");
+  String buf = f.readStringUntil();
+  f.close();
+  */
 
   if (digitalRead(BUTTON) == 0) {
     serverMode = true;
@@ -312,6 +331,7 @@ void setup() {
     setup_client();
     ip = WiFi.localIP();
   }
+  irrecv.enableIRIn();
 }
 
 void loop() {
@@ -320,6 +340,14 @@ void loop() {
     server.handleClient();
   }
   else {
+    while (WiFi.status() != WL_CONNECTED) {
+      Serial.println("Reconnect...");
+      setup_client();
+  }
+    if(digitalRead(BUTTON) == 0){
+      IR_snd();
+    }else
+      IR_rev();
     //User_ID +".txt"を読みに行く処理
   }
 }

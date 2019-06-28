@@ -259,7 +259,7 @@ class IRrecv
 class IRsend
 {
 	public:
-		byte timerPwmPin=3;
+		byte timerPwmPin=2;
 		IRsend(byte pin){
 			timerPwmPin=pin;
 			IRsend ();
