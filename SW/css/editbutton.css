@@ -1,0 +1,13 @@
+.button_edit{
+  text-align: center;
+}
+.new_botton_name{
+  border: 1px solid black;
+}
+.button{
+  border: 0.1px solid black;
+  border-radius:10%; 
+}
+.line{
+  border-bottom: 1px black;
+}
