@@ -10,6 +10,7 @@
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <ESP.h>
+#include <HTTPClient.h>
 //#include <WiFi.h>          //https://github.com/esp8266/Arduino
 //#include <DNSServer.h>
 //#include <WebServer.h>
@@ -50,105 +51,6 @@ const String pass = "TDU_SmartCon";
 WebServer server(80);
 WiFiClient client;
 
-void handleRootGet() {
-  String html = "";
-  html += "<h1>WiFi Settings</h1>";
-  html += "<form method='post'>";
-  html += "  Wi-FiのSSIDを入力してください。<br>";
-  html += "  <input type='text' name='ssid' placeholder='ssid'><br>";
-  html += "  Wi-Fiのパスワードを入力してください。<br>";
-  html += "  <input type='text' name='pass' placeholder='pass'><br>";
-  html += "  登録済みのユーザー名を入力してください。<br>";
-  html += "  <input type='text' name='user_id' placeholder='user_id'><br>";
-  html += "  <input type='submit'><br>";
-  html += "</form>";
-  server.send(200, "text/html", html);
-}
-
-void handleRootPost() {
-  String ssid = server.arg("ssid");
-  String pass = server.arg("pass");
-  String user_id = server.arg("user_id");
-
-  File f = SPIFFS.open(settings, "w");
-  f.println(ssid);
-  f.println(pass);
-  f.println(user_id);
-  f.close();
-
-  String html = "";
-  html += "<h1>WiFi Settings</h1>";
-  html += "SSID" + ssid + "<br>";
-  html += "パスワード" + pass + "<br>";
-  html += "ユーザー名" + user_id + "<br>";
-  html += "で設定されました。<br>これで設定は終了です。本体が再起動します。画面を閉じてください。";
-  server.send(200, "text/html", html);
-  delay(1000);
-  ESP.restart();
-}
-
-void setup_client() {
-  File f = SPIFFS.open(settings, "r");
-  String ssid = f.readStringUntil('\n');
-  String pass = f.readStringUntil('\n');
-  User_ID = f.readStringUntil('\n');
-  f.close();
-
-  ssid.trim();
-  pass.trim();
-  User_ID.trim();
-  delay(1000);
-  Serial.println("SSID: " + ssid);
-  Serial.println("PASS: " + pass);
-  Serial.println("USER_ID: " + User_ID);
-
-  WiFi.begin(ssid.c_str(), pass.c_str());
-
-  while (WiFi.status() != WL_CONNECTED) {
-    digitalWrite(LEDPin,HIGH);
-    Serial.print(".");
-    delay(250);
-    digitalWrite(LEDPin,LOW);
-    delay(250);
-  }
-  Serial.println("");
-
-  Serial.println("WiFi connected");
-
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-}
-
-void setup_server() {
-  String ssid = "IRSmartCon";
-  String pass = "TDU_SmartCon";
-  Serial.println("SSID: " + ssid);
-  Serial.println("PASS: " + pass);
-
-  /* You can remove the password parameter if you want the AP to be open. */
-  WiFi.softAP(ssid.c_str(), pass.c_str());
-
-  server.on("/", HTTP_GET, handleRootGet);
-  server.on("/", HTTP_POST, handleRootPost);
-  server.begin();
-  Serial.println("HTTP server started.");
-}
-
-void connection() {
-  /*
-    //WiFiManager
-    WiFiManager wifiManager;
-    //reset saved settings
-    //wifiManager.resetSettings();
-    wifiManager.autoConnect("IR_SmartController");
-    Serial.println("connected...");
-  */
-  //WiFiManagerを使わない方法
-  digitalWrite(BUZZER, HIGH);
-  delay(1000);
-  digitalWrite(BUZZER, LOW);
-  setup_server();
-}
 
 
 int codeType = -1; // The type of code
@@ -157,152 +59,7 @@ unsigned int rawCodes[RAWBUF]; // The durations if raw
 int RawcodeLen; // The length of the code
 int toggle = 0; // The RC5/6 toggle state
 
-void storeCode(decode_results *results) {
-  codeType = results->decode_type;
-  int count = results->rawlen;
-  if (codeType == UNKNOWN) {
-    Serial.println("Received unknown code, saving as raw");
-    RawcodeLen = results->rawlen - 1;
-    // To store raw codes:
-    // Drop first value (gap)
-    // Convert from ticks to microseconds
-    // Tweak marks shorter, and spaces longer to cancel out IR receiver distortion
-    for (int i = 1; i <= RawcodeLen; i++) {
-      if (i % 2) {
-        // Mark
-        rawCodes[i - 1] = results->rawbuf[i] * USECPERTICK - MARK_EXCESS;
-        Serial.print(" m");
-      }
-      else {
-        // Space
-        rawCodes[i - 1] = results->rawbuf[i] * USECPERTICK + MARK_EXCESS;
-        Serial.print(" s");
-      }
-      Serial.print(rawCodes[i - 1], DEC);
-    }
-    Serial.println("");
-  }
-  else {
-    if (codeType == NEC) {
-      Serial.print("Received NEC: ");
-      if (results->value == REPEAT) {
-        // Don't record a NEC repeat value as that's useless.
-        Serial.println("repeat; ignoring.");
-        return;
-      }
-    }
-    else if (codeType == SONY) {
-      Serial.print("Received SONY: ");
-    }
-    else if (codeType == PANASONIC) {
-      Serial.print("Received PANASONIC: ");
-    }
-    else if (codeType == JVC) {
-      Serial.print("Received JVC: ");
-    }
-    else if (codeType == RC5) {
-      Serial.print("Received RC5: ");
-    }
-    else if (codeType == RC6) {
-      Serial.print("Received RC6: ");
-    }
-    else {
-      Serial.print("Unexpected codeType ");
-      Serial.print(codeType, DEC);
-      Serial.println("");
-    }
-    Serial.println(results->value, HEX);
-    RawCode = results->value;
-    RawcodeLen = results->bits;
-  }
-  IR_post(/*HerokuのDBに送るRawCode*/);
-}
 
-void sendCode(unsigned long codeValue,unsigned int codeLen) {//これみて→https://qiita.com/cexen/items/5f9e7b28fe1ba4be1f50
-  if (results.decode_type == NEC) {
-    irsend.sendNEC(codeValue, codeLen);
-    Serial.print("Sent NEC ");
-    Serial.println(codeValue, HEX);
-  }
-  else if (results.decode_type == SONY) {
-    irsend.sendSony(codeValue, codeLen);
-    Serial.print("Sent Sony ");
-    Serial.println(codeValue, HEX);
-  }
-  else if (results.decode_type == PANASONIC) {
-    irsend.sendPanasonic(codeValue, codeLen);
-    Serial.print("Sent Panasonic");
-    Serial.println(codeValue, HEX);
-  }
-  else if (results.decode_type == JVC) {
-    irsend.sendJVC(codeValue, codeLen, false);
-    Serial.print("Sent JVC");
-    Serial.println(codeValue, HEX);
-  }
-  else if (results.decode_type == RC5 || results.decode_type == RC6) {
-    codeValue = codeValue & ~(1 << (codeLen - 1));
-    codeValue = codeValue | (toggle << (codeLen - 1));
-    if (results.decode_type == RC5) {
-      Serial.print("Sent RC5 ");
-      Serial.println(codeValue, HEX);
-      irsend.sendRC5(codeValue, codeLen);
-    }
-    else {
-      irsend.sendRC6(codeValue, codeLen);
-      Serial.print("Sent RC6 ");
-      Serial.println(codeValue, HEX);
-    }
-  }
-  else if (codeType == UNKNOWN /* i.e. raw */) {
-    // Assume 38 KHz
-    irsend.sendRaw(rawCodes, codeLen, 38);
-    Serial.print("Sent raw ");
-    for(int i=0;i<=codeLen;i++)
-      Serial.print(rawCodes[i]);
-    Serial.println();
-  }
-  /*irsend.sendRaw(results.rawbuf, codeLen, 38);
-  Serial.println("Sent raw");
-  */
-  
-}
-
-void IR_rev() {
-  digitalWrite(BUZZER, HIGH);
-  digitalWrite(LEDPin, HIGH);
-  digitalWrite(IR_RCV_POW, HIGH);
-  if (irrecv.decode(&results)) {
-    Serial.println(results.value, HEX);
-    storeCode(&results);
-    irrecv.resume();
-    Serial.println("rev success!");
-    delay(500);
-  }
-  digitalWrite(BUZZER, LOW);
-  digitalWrite(LEDPin, LOW);
-  digitalWrite(IR_RCV_POW, LOW);
-}
-
-void IR_snd() {
-  digitalWrite(BUZZER, HIGH);
-  sendCode(results.value,results.bits/*send raw code[]*/); //適当な引数入れてある　要変更　codeLenどうするか
-  irrecv.enableIRIn();
-  delay(500);
-  digitalWrite(BUZZER, LOW);
-}
-
-void IR_post(/*RawCode*/) {
-  if (client.connect(HOST_NAME, HOST_PORT)) {
-    Serial.println("connected to server");
-    client.print("GET ここにURLを指定する（ex. /celorin.php)?val=");
-    client.print("");//ここにRawCodeを入れる
-    client.print(" HTTP/1.1\r\n");
-    client.print("HOST: ");
-    client.println(ip);
-    client.println("Connection: close");
-    client.println();
-  }
-}
 
 void setup() {
   Serial.begin(9600); // シリアルモニタとの接続レート9600kbps
@@ -331,23 +88,33 @@ void setup() {
     setup_client();
     ip = WiFi.localIP();
   }
-  irrecv.enableIRIn();
 }
 
 void loop() {
-  delay(500);
+
+  delay(1000);
   if (serverMode) {
     server.handleClient();
-  }
-  else {
-    while (WiFi.status() != WL_CONNECTED) {
+    
+  } else {
+    if(WiFi.status() != WL_CONNECTED) {
+      //WiFi.disconnect();
       Serial.println("Reconnect...");
-      setup_client();
-  }
+      ESP.restart();
+      //setup_client();
+    }else{
+      Serial.println(getBody("http://tdu-iot.herokuapp.com/api/get"));  
+    }
+
+    //クラッシュ原因ここ
     if(digitalRead(BUTTON) == 0){
       IR_snd();
-    }else
+    }else{
       IR_rev();
     //User_ID +".txt"を読みに行く処理
+    }
+    
+    
   }
+  
 }
