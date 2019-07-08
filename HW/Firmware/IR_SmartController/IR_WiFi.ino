@@ -67,11 +67,11 @@ void handleRootGet() {
   html += "<h1>WiFi Settings</h1>";
   html += "<form method='post'>";
   html += "  Wi-FiのSSIDを入力してください。<br>";
-  html += "  <input type='text' name='ssid' placeholder='ssid'><br>";
+  html += "  <input type='text' name='ssid' placeholder='ssid' required><br>";
   html += "  Wi-Fiのパスワードを入力してください。<br>";
-  html += "  <input type='text' name='pass' placeholder='pass'><br>";
+  html += "  <input type='text' name='pass' placeholder='pass' required><br>";
   html += "  登録済みのユーザー名を入力してください。<br>";
-  html += "  <input type='text' name='user_id' placeholder='user_id'><br>";
+  html += "  <input type='text' name='user_id' placeholder='user_id' required><br>";
   html += "  <input type='submit'><br>";
   html += "</form>";
   server.send(200, "text/html", html);

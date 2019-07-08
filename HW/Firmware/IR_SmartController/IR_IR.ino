@@ -56,34 +56,36 @@ void storeCode(decode_results *results) {
     RawCode = results->value;
     RawcodeLen = results->bits;
   }
-  IR_post(/*HerokuのDBに送るRawCode*/);
+  IR_post();//Herokuに送りたい(願望)
 }
 
-void sendCode(unsigned long codeValue,unsigned int codeLen) {//これみて→https://qiita.com/cexen/items/5f9e7b28fe1ba4be1f50
-  if (results.decode_type == NEC) {
-    irsend.sendNEC(codeValue, codeLen);
+void sendCode(int codetype,unsigned int codeValue) {//これみて→https://qiita.com/cexen/items/5f9e7b28fe1ba4be1f50
+  unsigned int codeLen = sizeof(codeValue)*8; // sizeof(unsigned int);
+  if (codetype == NEC) {
+    irsend.sendNEC(codeValue,codeLen);
     Serial.print("Sent NEC ");
-    Serial.println(codeValue, HEX);
+    Serial.println(codeValue,HEX);
+    Serial.println(codeLen);
   }
-  else if (results.decode_type == SONY) {
+  else if (codetype == SONY) {
     irsend.sendSony(codeValue, codeLen);
     Serial.print("Sent Sony ");
     Serial.println(codeValue, HEX);
   }
-  else if (results.decode_type == PANASONIC) {
+  else if (codetype == PANASONIC) {
     irsend.sendPanasonic(codeValue, codeLen);
     Serial.print("Sent Panasonic");
     Serial.println(codeValue, HEX);
   }
-  else if (results.decode_type == JVC) {
+  else if (codetype == JVC) {
     irsend.sendJVC(codeValue, codeLen, false);
     Serial.print("Sent JVC");
     Serial.println(codeValue, HEX);
   }
-  else if (results.decode_type == RC5 || results.decode_type == RC6) {
+  else if (codetype == RC5 || codetype == RC6) {
     codeValue = codeValue & ~(1 << (codeLen - 1));
     codeValue = codeValue | (toggle << (codeLen - 1));
-    if (results.decode_type == RC5) {
+    if (codetype == RC5) {
       Serial.print("Sent RC5 ");
       Serial.println(codeValue, HEX);
       irsend.sendRC5(codeValue, codeLen);
@@ -94,8 +96,9 @@ void sendCode(unsigned long codeValue,unsigned int codeLen) {//これみて→ht
       Serial.println(codeValue, HEX);
     }
   }
-  else if (codeType == UNKNOWN /* i.e. raw */) {
+  else if (codetype == UNKNOWN /* i.e. raw */) {
     // Assume 38 KHz
+    Serial.println(codeValue);
     irsend.sendRaw(rawCodes, codeLen, 38);
     Serial.print("Sent raw ");
     for(int i=0;i<=codeLen;i++)
@@ -110,40 +113,37 @@ void sendCode(unsigned long codeValue,unsigned int codeLen) {//これみて→ht
 
 
 void IR_rev() {
+  int cnt=0;
+  WiFi.disconnect();
   irrecv.enableIRIn();
+  delay(100);
   digitalWrite(BUZZER, HIGH);
   digitalWrite(LEDPin, HIGH);
   digitalWrite(IR_RCV_POW, HIGH);
-  if (irrecv.decode(&results)) {
-    Serial.println(results.value, HEX);
-    storeCode(&results);
-    irrecv.resume();
-    Serial.println("rev success!");
+  while(!(irrecv.decode(&results))) {
+    Serial.print(".");
+    delay(100);
+    cnt++;
+    if(cnt >= 100){
+      break;  
+    }
   }
-  delay(500);
+  Serial.println(results.value, HEX);
+  storeCode(&results);
+  irrecv.resume();
+  Serial.println("rev success!");
+  irrecv.disableIRIn();
+  delay(100);
   digitalWrite(BUZZER, LOW);
   digitalWrite(LEDPin, LOW);
   digitalWrite(IR_RCV_POW, LOW);
+  WiFi.begin();
 }
 
 void IR_snd() {
   digitalWrite(BUZZER, HIGH);
-  sendCode(results.value,results.bits/*send raw code[]*/); //適当な引数入れてある　要変更　codeLenどうするか
-  irrecv.enableIRIn();
+  sendCode(3,16711935/*send raw code[]*/); //適当な引数入れてある　要変更　codeLenどうするか
+  //irrecv.enableIRIn();
   delay(500);
   digitalWrite(BUZZER, LOW);
-}
-
-
-void IR_post(/*RawCode*/) {
-  if (client.connect(HOST_NAME, HOST_PORT)) {
-    Serial.println("connected to server");
-    client.print("GET ここにURLを指定する（ex. /celorin.php)?val=");
-    client.print("");//ここにRawCodeを入れる
-    client.print(" HTTP/1.1\r\n");
-    client.print("HOST: ");
-    client.println(ip);
-    client.println("Connection: close");
-    client.println();
-  }
 }

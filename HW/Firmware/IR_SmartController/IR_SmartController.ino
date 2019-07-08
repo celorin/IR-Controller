@@ -17,7 +17,8 @@
 //#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 #include <IRremote.h>
 
-#define HOST_NAME ""//Herokuのサーバーaddr
+#define HOST_NAME "http://tdu-iot.herokuapp.com/" 
+//Herokuのサーバーaddr
 #define HOST_PORT 80
 
 void IR_post(/*引数忘れないでね*/);
@@ -52,13 +53,11 @@ WebServer server(80);
 WiFiClient client;
 
 
-
 int codeType = -1; // The type of code
 unsigned long RawCode; // The code value if not raw
 unsigned int rawCodes[RAWBUF]; // The durations if raw
 int RawcodeLen; // The length of the code
 int toggle = 0; // The RC5/6 toggle state
-
 
 
 void setup() {
@@ -87,34 +86,32 @@ void setup() {
     delay(1000);
     setup_client();
     ip = WiFi.localIP();
+    //irrecv.enableIRIn();
   }
+  
 }
 
 void loop() {
-
-  delay(1000);
+  delay(300);
   if (serverMode) {
     server.handleClient();
-    
-  } else {
+  }else {
     if(WiFi.status() != WL_CONNECTED) {
-      //WiFi.disconnect();
+      //irrecv.disableIRIn();
       Serial.println("Reconnect...");
-      ESP.restart();
-      //setup_client();
+      delay(100);
+      //ESP.restart();
     }else{
-      Serial.println(getBody("http://tdu-iot.herokuapp.com/api/get"));  
+      if(digitalRead(BUTTON) == 0){
+        IR_rev();
+        //IR_snd();
+      }else{
+        //irrecv.enableIRIn();
+        delay(500);
+        IR_snd();
+        Serial.println("送信中...");
+      }
     }
-
-    //クラッシュ原因ここ
-    if(digitalRead(BUTTON) == 0){
-      IR_snd();
-    }else{
-      IR_rev();
     //User_ID +".txt"を読みに行く処理
-    }
-    
-    
   }
-  
 }
