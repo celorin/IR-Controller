@@ -86,11 +86,6 @@ void setup() {
     delay(1000);
     setup_client();
     ip = WiFi.localIP();
-<<<<<<< HEAD
-    //irrecv.enableIRIn();
-=======
-    irrecv.enableIRIn();
->>>>>>> 5110056c779a72a7887e38f6396486c8442df5e1
   }
   
 }
@@ -99,7 +94,6 @@ void loop() {
   delay(300);
   if (serverMode) {
     server.handleClient();
-<<<<<<< HEAD
   }else {
     if(WiFi.status() != WL_CONNECTED) {
       //irrecv.disableIRIn();
@@ -116,21 +110,6 @@ void loop() {
         IR_snd();
         Serial.println("送信中...");
       }
-=======
-  }
-  else {
-    if(WiFi.status() != WL_CONNECTED) {
-      irrecv.disableIRIn();
-      Serial.println("Reconnect...");
-      ESP.restart();
-    }
-    if(digitalRead(BUTTON) == 0){
-      IR_snd();
-    }else{
-      irrecv.enableIRIn();
-      delay(200);
-      IR_rev();
->>>>>>> 5110056c779a72a7887e38f6396486c8442df5e1
     }
     //User_ID +".txt"を読みに行く処理
   }
