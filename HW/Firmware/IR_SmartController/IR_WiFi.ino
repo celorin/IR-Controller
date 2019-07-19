@@ -6,6 +6,10 @@ void setup_client() {
   User_ID = f.readStringUntil('\n');
   f.close();
 
+  File f = SPIFFS.open(rcvbody, "r");
+  User_ID = f.readStringUntil('\n');
+  f.close();
+
   ssid.trim();
   pass.trim();
   User_ID.trim();

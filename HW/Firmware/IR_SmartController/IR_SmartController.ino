@@ -45,6 +45,9 @@ const char* ircode_file = "/ir_codes.txt";
 // Wi-Fi設定保存ファイル
 const char* settings = "/wifi_settings.txt";
 
+//サーバからGETしたbodyを保存しておくファイル
+const char* rcvbody = "/rcv_body.txt";
+
 // サーバモードでのパスワード
 const String pass = "TDU_SmartCon";
 
