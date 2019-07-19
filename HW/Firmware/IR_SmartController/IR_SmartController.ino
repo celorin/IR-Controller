@@ -73,11 +73,6 @@ void setup() {
 
   
   SPIFFS.begin();
-/*
-  File f = SPIFFS.open(settings, "r");
-  String buf = f.readStringUntil();
-  f.close();
-  */
 
   if (digitalRead(BUTTON) == 0) {
     serverMode = true;
