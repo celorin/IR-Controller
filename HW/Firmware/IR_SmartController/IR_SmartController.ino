@@ -1,7 +1,3 @@
-//Store_CodeからRawCodeだけを取り出してHerokuのDBにPost。
-//GetしたRawCodeをSend_Codeに渡して発光させる処理を作る。CodeTypeをSonyとか使わないでUnknownを使えば行けるかな
-
-
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <FS.h>
@@ -50,6 +46,7 @@ const char* rcvbody = "/rcv_body.txt";
 
 // サーバモードでのパスワード
 const String pass = "TDU_SmartCon";
+//IPアドレスは 192.168.4.1
 
 WebServer server(80);
 WiFiClient client;
@@ -93,10 +90,8 @@ void loop() {
     server.handleClient();
   }else {
     if(WiFi.status() != WL_CONNECTED) {
-      //irrecv.disableIRIn();
       Serial.println("Reconnect...");
       delay(100);
-      //ESP.restart();
     }else{
       if(digitalRead(BUTTON) == 0){
         IR_rev();
@@ -107,6 +102,5 @@ void loop() {
         Serial.println("送信中...");
       }
     }
-    //User_ID +".txt"を読みに行く処理
   }
 }

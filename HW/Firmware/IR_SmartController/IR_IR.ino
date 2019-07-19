@@ -4,10 +4,6 @@ void storeCode(decode_results *results) {
   if (codeType == UNKNOWN) {
     Serial.println("Received unknown code, saving as raw");
     RawcodeLen = results->rawlen - 1;
-    // To store raw codes:
-    // Drop first value (gap)
-    // Convert from ticks to microseconds
-    // Tweak marks shorter, and spaces longer to cancel out IR receiver distortion
     for (int i = 1; i <= RawcodeLen; i++) {
       if (i % 2) {
         // Mark
@@ -59,8 +55,8 @@ void storeCode(decode_results *results) {
   IR_post();//Herokuに送りたい(願望)
 }
 
-void sendCode(int codetype,unsigned int codeValue) {//これみて→https://qiita.com/cexen/items/5f9e7b28fe1ba4be1f50
-  unsigned int codeLen = sizeof(codeValue)*8; // sizeof(unsigned int);
+void sendCode(int codetype,unsigned int codeValue) {
+  unsigned int codeLen = sizeof(codeValue)*8;
   if (codetype == NEC) {
     irsend.sendNEC(codeValue,codeLen);
     Serial.print("Sent NEC ");
@@ -96,7 +92,7 @@ void sendCode(int codetype,unsigned int codeValue) {//これみて→https://qii
       Serial.println(codeValue, HEX);
     }
   }
-  else if (codetype == UNKNOWN /* i.e. raw */) {
+  else if (codetype == UNKNOWN) {
     // Assume 38 KHz
     Serial.println(codeValue);
     irsend.sendRaw(rawCodes, codeLen, 38);
@@ -142,8 +138,7 @@ void IR_rev() {
 
 void IR_snd(String ir_type, String ir_code) {
   digitalWrite(BUZZER, HIGH);
-  sendCode(ir_type.toInt(),ir_code.toInt()/*3,16711935*//*send raw code[]*/); //適当な引数入れてある　要変更　codeLenどうするか
-  //irrecv.enableIRIn();
+  sendCode(ir_type.toInt(),ir_code.toInt());
   delay(500);
   digitalWrite(BUZZER, LOW);
 }

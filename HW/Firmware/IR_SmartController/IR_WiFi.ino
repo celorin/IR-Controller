@@ -41,7 +41,6 @@ void setup_server() {
   Serial.println("SSID: " + ssid);
   Serial.println("PASS: " + pass);
 
-  /* You can remove the password parameter if you want the AP to be open. */
   WiFi.softAP(ssid.c_str(), pass.c_str());
 
   server.on("/", HTTP_GET, handleRootGet);
@@ -51,15 +50,6 @@ void setup_server() {
 }
 
 void connection() {
-  /*
-    //WiFiManager
-    WiFiManager wifiManager;
-    //reset saved settings
-    //wifiManager.resetSettings();
-    wifiManager.autoConnect("IR_SmartController");
-    Serial.println("connected...");
-  */
-  //WiFiManagerを使わない方法
   digitalWrite(BUZZER, HIGH);
   delay(1000);
   digitalWrite(BUZZER, LOW);

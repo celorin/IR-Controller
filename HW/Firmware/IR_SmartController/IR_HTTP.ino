@@ -3,14 +3,17 @@ void split(String body,String split_body[]){
   char p[len];
   body.toCharArray(p,len);
   int i=0,j=0;
-  while(p[i] != '\0'){
-    if(p[i] == '\n'){
-        j++;
+  while(p[i] != '\0' && i<=2){
+    if(p[i] == '\n' || p[i] == '?'){
+      j++;
     }else{
       split_body[j] = split_body[j] + p[i];  
     }
     i++;
   }
+  Serial.println(split_body[0]);
+  Serial.println(split_body[1]);
+  Serial.println(split_body[2]);
 }
 
 void getBody(){ 
@@ -30,7 +33,7 @@ void getBody(){
       f.println(body);
       f.close();
       
-      String body_split[3];
+      String body_split[5];
       split(body,body_split);
       if(body_split[0].equals(String("Lean_IR")))IR_rev();
       if(body_split[0].equals(String("Send_IR"))){
@@ -43,7 +46,7 @@ void getBody(){
 void IR_post() {
   String send_url = "send/";
   String send_val = "?val=";
-  String post_url = HOST_NAME + send_url + User_ID + send_val + String(results.decode_type) + String("!") + String(results.value);
+  String post_url = HOST_NAME + send_url + User_ID + send_val + String(results.decode_type) + String("?") + String(results.value);
   //String post_url=""; 
   //sprintf(post_url,"%s%s%s%s%s%s",HOST_NAME,"send/",User_ID,"?val=",String(results.decode_type),String(results.value));
   Serial.println(post_url);
