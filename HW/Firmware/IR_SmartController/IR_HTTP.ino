@@ -10,6 +10,11 @@ void getBody(){
     String body = http.getString();
     if(!Recv_Data.equals(body)){
       Recv_Data = body;
+      
+      File f = SPIFFS.open(rcvbody, "w");
+      f.println(body);
+      f.close();
+      
       String meirei = "Stringをなんとかして\nで分割して"
       if(meirei.equals("Lean_IR"))IR_rev();
       if(meirei == "Send_IR"){
