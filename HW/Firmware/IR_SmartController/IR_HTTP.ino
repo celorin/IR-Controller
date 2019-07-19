@@ -20,6 +20,13 @@ void getBody(){
   }
 }
 
+String[] split(String body){
+  String split_body[] = new String[2];
+  for(int i=0;i<split_body.length;i++){
+    split_body[i] = strtok(body.c_str,"\n");
+  }
+}
+
 void IR_post() {
   String send_url = "send/";
   String send_val = "?val=";
