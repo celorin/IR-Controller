@@ -1,7 +1,15 @@
-void split(String body,String *split_body){
-  for(int i=0;i<3;i++){
-    
-    split_body[i] = strtok(body,"\n");
+void split(String body,String split_body[]){
+  int len = body.length() + 1;
+  char p[len];
+  body.toCharArray(p,len);
+  int i=0,j=0;
+  while(p[i] != '\0'){
+    if(p[i] == '\n'){
+        j++;
+    }else{
+      split_body[j] = split_body[j] + p[i];  
+    }
+    i++;
   }
 }
 

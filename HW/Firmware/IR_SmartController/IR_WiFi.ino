@@ -7,7 +7,7 @@ void setup_client() {
   f1.close();
 
   File f2 = SPIFFS.open(rcvbody, "r");
-  Recv_Data = f2.readStringUntil();
+  Recv_Data = f2.readStringUntil('\0');
   f2.close();
 
   ssid.trim();
