@@ -17,8 +17,7 @@
 //#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 #include <IRremote.h>
 
-#define HOST_NAME "http://tdu-iot.herokuapp.com/" 
-//Herokuのサーバーaddr
+#define HOST_NAME "http://tdu-iot.herokuapp.com/" //Herokuのサーバーaddr
 #define HOST_PORT 80
 
 void IR_post(/*引数忘れないでね*/);
@@ -31,7 +30,7 @@ const int BUZZER = 26;
 const int LEDPin = 27;
 
 String User_ID = "";
-
+String Recv_Data = "";
 boolean serverMode = false;
 
 IPAddress ip;
@@ -105,9 +104,8 @@ void loop() {
         IR_rev();
         //IR_snd();
       }else{
-        //irrecv.enableIRIn();
+        getBody();
         delay(500);
-        IR_snd();
         Serial.println("送信中...");
       }
     }

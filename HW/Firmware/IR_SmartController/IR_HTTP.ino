@@ -1,4 +1,5 @@
-String getBody(String url){  
+void getBody(){ 
+  String url = HOST_NAME + String("api/") + User_ID;
   HTTPClient http;
   http.begin(url);
   int httpCode = http.GET();
@@ -7,11 +8,16 @@ String getBody(String url){
   Serial.println();
   if (httpCode == HTTP_CODE_OK) {
     String body = http.getString();
-    /*Serial.print("Response Body: ");
-    Serial.println(body);*/
-    return body;
+    if(!Recv_Data.equals(body)){
+      Recv_Data = body;
+      String meirei = "Stringをなんとかして\nで分割して"
+      if(meirei.equals("Lean_IR"))IR_rev();
+      if(meirei == "Send_IR"){
+        String ir_code = "これもよろしく"
+        IR_snd(ir_code);
+      }
+    }
   }
-  return "";
 }
 
 void IR_post() {
