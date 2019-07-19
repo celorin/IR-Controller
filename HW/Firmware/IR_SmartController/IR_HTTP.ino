@@ -1,3 +1,10 @@
+void split(String body,String *split_body){
+  for(int i=0;i<3;i++){
+    
+    split_body[i] = strtok(body,"\n");
+  }
+}
+
 void getBody(){ 
   String url = HOST_NAME + String("api/") + User_ID;
   HTTPClient http;
@@ -15,20 +22,13 @@ void getBody(){
       f.println(body);
       f.close();
       
-      String meirei = "Stringをなんとかして\nで分割して"
-      if(meirei.equals("Lean_IR"))IR_rev();
-      if(meirei == "Send_IR"){
-        String ir_code = "これもよろしく"
-        IR_snd(ir_code);
+      String body_split[3];
+      split(body,body_split);
+      if(body_split[0].equals(String("Lean_IR")))IR_rev();
+      if(body_split[0].equals(String("Send_IR"))){
+        IR_snd(body_split[1],body_split[2]);
       }
     }
-  }
-}
-
-String[] split(String body){
-  String split_body[] = new String[2];
-  for(int i=0;i<split_body.length;i++){
-    split_body[i] = strtok(body.c_str,"\n");
   }
 }
 

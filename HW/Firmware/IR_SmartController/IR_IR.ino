@@ -140,11 +140,9 @@ void IR_rev() {
   WiFi.begin();
 }
 
-void IR_snd(String ir_code) {
-  IRtype = "ここも"
-  IRcode = "ここも"
+void IR_snd(String ir_type, String ir_code) {
   digitalWrite(BUZZER, HIGH);
-  sendCode(IRtype,IRcode/*3,16711935*//*send raw code[]*/); //適当な引数入れてある　要変更　codeLenどうするか
+  sendCode(ir_type.toInt(),ir_code.toInt()/*3,16711935*//*send raw code[]*/); //適当な引数入れてある　要変更　codeLenどうするか
   //irrecv.enableIRIn();
   delay(500);
   digitalWrite(BUZZER, LOW);

@@ -1,14 +1,14 @@
 
 void setup_client() {
-  File f = SPIFFS.open(settings, "r");
-  String ssid = f.readStringUntil('\n');
-  String pass = f.readStringUntil('\n');
-  User_ID = f.readStringUntil('\n');
-  f.close();
+  File f1 = SPIFFS.open(settings, "r");
+  String ssid = f1.readStringUntil('\n');
+  String pass = f1.readStringUntil('\n');
+  User_ID = f1.readStringUntil('\n');
+  f1.close();
 
-  File f = SPIFFS.open(rcvbody, "r");
-  Recv_Data = f.readStringUntil();
-  f.close();
+  File f2 = SPIFFS.open(rcvbody, "r");
+  Recv_Data = f2.readStringUntil();
+  f2.close();
 
   ssid.trim();
   pass.trim();
