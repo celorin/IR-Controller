@@ -24,6 +24,7 @@ const int IR_RCV_POW = 16;
 const int BUTTON = 25;
 const int BUZZER = 26;
 const int LEDPin = 27;
+const int TMPPin = 34;
 
 String User_ID = "";
 String Recv_Data = "";
@@ -85,7 +86,9 @@ void setup() {
 }
 
 void loop() {
+  static unsigned int cnt=0;
   delay(300);
+  
   if (serverMode) {
     server.handleClient();
   }else {
@@ -101,6 +104,12 @@ void loop() {
         delay(500);
         Serial.println("送信中...");
       }
+      if(cnt == 10){  //とりあえず10回ごと．0.8*10=8秒ごとくらい？
+        Serial.println(getTmp());
+        delay(100);
+        cnt = 0;
+      }
+      cnt++;
     }
   }
 }
