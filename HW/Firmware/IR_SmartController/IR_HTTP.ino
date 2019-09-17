@@ -3,7 +3,7 @@ void split(String body,String split_body[]){
   char p[len];
   body.toCharArray(p,len);
   int i=0,j=0;
-  while(p[i] != '\0' && i<=2){
+  while(p[i] != '\0' && j<=2){
     if(p[i] == '\n' || p[i] == '?'){
       j++;
     }else{
@@ -35,7 +35,7 @@ void getBody(){
       
       String body_split[5];
       split(body,body_split);
-      if(body_split[0].equals(String("Lean_IR")))IR_rev();
+      if(body_split[0].equals(String("Learn_IR")))IR_rev();
       if(body_split[0].equals(String("Send_IR"))){
         IR_snd(body_split[1],body_split[2]);
       }

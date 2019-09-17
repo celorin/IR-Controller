@@ -129,7 +129,7 @@ void IR_rev() {
   irrecv.resume();
   Serial.println("rev success!");
   irrecv.disableIRIn();
-  delay(100);
+  delay(200);
   digitalWrite(BUZZER, LOW);
   digitalWrite(LEDPin, LOW);
   digitalWrite(IR_RCV_POW, LOW);
