@@ -35,10 +35,13 @@ void getBody(){
       
       String body_split[5];
       split(body,body_split);
-      if(body_split[0].equals(String("Learn_IR")))IR_rev();
+      if(body_split[0].equals(String("Learn_IR")))
+        IR_rev();
+      Serial.println("oppai");
       if(body_split[0].equals(String("Send_IR"))){
         IR_snd(body_split[1],body_split[2]);
       }
+      Serial.println("tioppai");
     }
   }
 }

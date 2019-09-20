@@ -128,12 +128,14 @@ void IR_rev() {
   storeCode(&results);
   irrecv.resume();
   Serial.println("rev success!");
-  irrecv.disableIRIn();
+  //irrecv.disableIRIn();
   delay(200);
   digitalWrite(BUZZER, LOW);
   digitalWrite(LEDPin, LOW);
   digitalWrite(IR_RCV_POW, LOW);
+  Serial.println("unti");
   WiFi.begin();
+  Serial.println("manko");
 }
 
 void IR_snd(String ir_type, String ir_code) {

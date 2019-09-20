@@ -101,7 +101,7 @@ void loop() {
         //IR_snd();
       }else{
         getBody();
-        delay(500);
+        delay(100);
         Serial.println("送信中...");
       }
       if(cnt == 10){  //とりあえず10回ごと．0.8*10=8秒ごとくらい？
