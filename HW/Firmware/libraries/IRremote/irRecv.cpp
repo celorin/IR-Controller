@@ -156,13 +156,10 @@ void  IRrecv::enableIRIn ( )
 	pinMode(irparams.recvpin, INPUT);
 }
 void  IRrecv::disableIRIn ( ){
-	detachInterrupt(irparams.recvpin);
-	// 再度enableIRIn()ができないため※アウト
 	cli();
 	TIMER_DISABLE_INTR;
 	sei();  // enable interrupts
 	timerEnd(timer);
-	//
 }
 //+=============================================================================
 // Enable/disable blinking of pin 13 on IR processing
