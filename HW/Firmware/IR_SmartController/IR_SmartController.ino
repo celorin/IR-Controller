@@ -106,6 +106,7 @@ void loop() {
       }
       if(cnt == 10){  //とりあえず10回ごと．0.8*10=8秒ごとくらい？
         Serial.println(getTmp());
+        TMP_post();
         delay(100);
         cnt = 0;
       }

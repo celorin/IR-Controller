@@ -52,7 +52,7 @@ void storeCode(decode_results *results) {
     RawCode = results->value;
     RawcodeLen = results->bits;
   }
-  IR_post();//Herokuに送りたい(願望)
+  //IR_post();//Herokuに送りたい(願望)
 }
 
 void sendCode(int codetype,unsigned int codeValue) {
@@ -128,14 +128,18 @@ void IR_rev() {
   storeCode(&results);
   irrecv.resume();
   Serial.println("rev success!");
-  //irrecv.disableIRIn();
+  irrecv.disableIRIn();
   delay(200);
   digitalWrite(BUZZER, LOW);
   digitalWrite(LEDPin, LOW);
   digitalWrite(IR_RCV_POW, LOW);
-  Serial.println("unti");
   WiFi.begin();
-  Serial.println("manko");
+  while(WiFi.status() != WL_CONNECTED) {
+      Serial.println("Reconnect...");
+      delay(100);
+  }
+  delay(100);
+  IR_post();
 }
 
 void IR_snd(String ir_type, String ir_code) {
