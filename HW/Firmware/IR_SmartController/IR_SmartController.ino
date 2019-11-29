@@ -19,11 +19,11 @@
 void IR_post(/*引数忘れないでね*/);
 
 const int IR_SND = 2;
-const int IR_RCV = 4;
+const int IR_RCV = 19;
 const int IR_RCV_POW = 16;
-const int BUTTON = 25;
-const int BUZZER = 26;
-const int LEDPin = 27;
+const int BUTTON = 22;
+const int BUZZER = 32;
+const int LEDPin = 21;
 const int TMPPin = 34;
 
 String User_ID = "";
